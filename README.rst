@@ -8,7 +8,9 @@ To install::
 
   $ pip install simex
 
-To use::
+To use:
+
+.. code-block:: python
 
   >>> from simex import simex
   >>> LINK_EXPRESSION = """<a href="{{ url }}">{{ anything }}</a>"""
