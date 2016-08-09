@@ -19,9 +19,9 @@ To use:
   True
 
   >>> exp = simex(LINK_EXPRESSION, url=r"(.*?)")
-  >>> assert exp.match("""<a href="http://www.cnn.com">{{ anything }}</a>""")
+  >>> exp.match("""<a href="http://www.cnn.com">{{ anything }}</a>""") is not None
   True
 
   >>> exp = simex(LINK_EXPRESSION, url=r"(.*?)")
-  >>> assert exp.search("""Pre text <a href="http://x.com">{{ anything }}</a> post text""")
+  >>> exp.search("""Pre text <a href="http://x.com">{{ anything }}</a> post text""") is not None
   True
