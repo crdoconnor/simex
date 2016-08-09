@@ -1,0 +1,26 @@
+{% for python_version in ["2.7.10", "3.5.0"] %}
+- name: Example matches
+  tags:
+    - match
+  preconditions:
+    python_version: {{ python_version }}
+    files:
+      example_code.py: |
+        {% raw %}
+        from simex import simex
+
+        LINK_EXPRESSION = """<a href="{{ url }}">{{ anything }}</a>"""
+
+        exp = simex(LINK_EXPRESSION, url=r"(.*?)", anything=r".*?")
+        assert exp.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+
+        exp = simex(LINK_EXPRESSION, url=r"(.*?)")
+        assert exp.match("""<a href="http://www.cnn.com">{{ anything }}</a>""") is not None
+
+        exp = simex(LINK_EXPRESSION, url=r"(.*?)")
+        assert exp.search("""Pre text <a href="http://x.com">{{ anything }}</a> post text""") is not None
+        {% endraw %}
+  scenario:
+    - Run: example_code.py
+    - Exited successfully
+{% endfor %}

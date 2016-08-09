@@ -1,0 +1,8 @@
+build/
+dist/
+.cache
+simex.egg-info/
+tests/.hitch
+state/
+__pycache__
+*.pyc
