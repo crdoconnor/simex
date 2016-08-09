@@ -1,8 +1,11 @@
-SimpleMatch
-===========
+SimEx
+=====
 
-SimpleMatch is a replacement for regular expressions that lets you write non-developer
+SimEx is a substitute for regular expressions that lets you write non-developer
 readable/writeable matching expressions.
+
+It is sometimes, but not always, more suitable than writing regular expressions
+directly.
 
 To install::
 
