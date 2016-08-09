@@ -5,9 +5,9 @@ class Expression(object):
     """Represents a simplematch expression."""
     BRACKET_MATCH = regex.compile(r"\{\{(.*?)\}\}")
 
-    def __init__(self, expression, **regexps):
+    def __init__(self, expression, regexes=None):
         self._expression = expression
-        self._regexps = regexps
+        self._regexes = regexes if regexes is not None else {}
 
     def regex(self):
         """
@@ -20,10 +20,10 @@ class Expression(object):
                 compiled_regex = compiled_regex + regex.escape(chunk)
             else:
                 stripped_chunk = chunk.strip()
-                if stripped_chunk in self._regexps.keys():
+                if stripped_chunk in self._regexes.keys():
                     compiled_regex = u"{0}{1}".format(
                         compiled_regex,
-                        self._regexps[stripped_chunk]
+                        self._regexes[stripped_chunk]
                     )
                 else:
                     compiled_regex = u"{0}{1}{2}{3}".format(
