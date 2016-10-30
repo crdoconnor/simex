@@ -1,21 +1,40 @@
 import re as regex
 
 
-class Expression(object):
-    """Represents a simplematch expression."""
-    BRACKET_MATCH = regex.compile(r"\{\{(.*?)\}\}")
+class KeyNotFound(Exception):
+    pass
 
-    def __init__(self, expression, regexes=None):
-        self._expression = expression
-        self._regexes = regexes if regexes is not None else {}
 
-    def regex(self):
+class Simex(object):
+    """
+    Simple Simex containing no specified default regexes.
+    """
+    DEFAULTS = {}
+
+    def __init__(self, regexes=None, open_delimeter="{{", close_delimeter="}}"):
         """
-        Returns a regular expression object representing the simplematch.
+        Initialize simex.
+
+        regexes: A dict of keys and values. Will override self.DEFAULTS if specified.
+        open_delimeter: what specifies the beginning of a key (default '}}')
+        close_delimeter: what specifies the end of a key (default '}}')
+        """
+        if regexes is None:
+            self._regexes = self.DEFAULTS
+        else:
+            self._regexes = dict([r for r in self.DEFAULTS.items()] + [r for r in regexes.items()])
+        self._open_delimeter = open_delimeter
+        self._close_delimeter = close_delimeter
+
+    def compile(self, code):
+        """
+        Compile a simex code (e.g. <a href="{{ url }}">{{ anything }}</a>) to regex.
+
+        Returns regex.
         """
         is_plain_text = True
         compiled_regex = r""
-        for chunk in self.BRACKET_MATCH.split(self._expression):
+        for chunk in self.delimiter_regex().split(code):
             if is_plain_text:
                 compiled_regex = compiled_regex + regex.escape(chunk)
             else:
@@ -26,18 +45,26 @@ class Expression(object):
                         self._regexes[stripped_chunk]
                     )
                 else:
-                    compiled_regex = u"{0}{1}{2}{3}".format(
-                        compiled_regex,
-                        u"\{\{", chunk, u"\}\}"
-                    )
+                    raise KeyNotFound("'{0}' not found in keys")
             is_plain_text = not is_plain_text
-        return compiled_regex
+        return regex.compile(compiled_regex)
 
-    def match(self, string=None, flags=0):
-        return regex.match(self.regex(), string, flags=0)
+    def delimiter_regex(self):
+        return regex.compile(
+            regex.escape(self._open_delimeter) + r'(.*?)' + regex.escape(self._close_delimeter)
+        )
 
-    def search(self, string=None, flags=0):
-        return regex.search(self.regex(), string, flags=0)
 
-def simex(expression, **regexps):
-    return Expression(expression, **regexps)
+class DefaultSimex(Simex):
+    """
+    Simple Simex containing five default regexes.
+
+    To see the regexes, see DEFAULTS class variable.
+    """
+    DEFAULTS = {
+        "url": r"(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?",
+        "email": r".*?\@.*?",
+        "integer": r"[-+]?\d+",
+        "number": r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?"
+        "anything": r".*?",
+    }

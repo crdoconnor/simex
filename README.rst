@@ -1,30 +1,84 @@
 SimEx
 =====
 
-SimEx is a substitute for regular expressions that lets you write non-developer
-readable/writeable matching expressions.
+SimEx is a tool that lets you write simple, readable equivalents of regular expressions that
+compile down to regular expressions.
 
-It is sometimes, but not always, more suitable than writing regular expressions
-directly.
+This is useful for:
+
+* Improving the readability and maintainability of code that uses long regexes with a lot of escaped characters.
+* Allowing non-developers to read and understand simple regex-equivalents and potentially even write their own.
+
+Simex is *not* a full replacement for regular expressions and its use is not
+suitable everywhere a regex is used.
+
+See also: `Rule of least power (wikipedia) <https://en.wikipedia.org/wiki/Rule_of_least_power>`_
 
 To install::
 
   $ pip install simex
 
-To use:
+Example
+-------
 
 .. code-block:: python
 
-  >>> from simex import simex
-  >>> LINK_EXPRESSION = """<a href="{{ url }}">{{ anything }}</a>"""
-  >>> exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)", "anything": r".*?"})
-  >>> exp.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+  >>> from simex import Simex
+  >>> simex = Simex({"url": r".*?", "anything": r".*?"})
+  >>> simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
   True
 
-  >>> exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)"})
-  >>> exp.match("""<a href="http://www.cnn.com">{{ anything }}</a>""") is not None
-  True
 
-  >>> exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)"})
-  >>> exp.search("""Pre text <a href="http://x.com">{{ anything }}</a> post text""") is not None
-  True
+How does it work?
+-----------------
+
+The regular expression simply escapes an entire simexpression, except for the
+components surrounded by {{ and }}, which it replaces with defined regular
+expressions - like "email" or "anything" or "number" defined in the dict.
+
+Do I have to define all of the sub-regular expressions myself?
+--------------------------------------------------------------
+
+No. SimEx also contains a built in library of commonly used regular expressions.
+
+This will also work:
+
+  >>> from simex import Simex
+  >>> my_simex = DefaultSimex()
+  >>> regex = my_simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> regex
+  re.compile(r'\<a\ href\=\"(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\\'\/\\\+&amp;%\$#_]*)?\"\>.*?\<\/a\>', re.UNICODE)
+
+  >>> regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+
+All regexes in the existing library can be overridden, and more can be added, e.g.
+
+.. code-block:: python
+
+  >>> simex = DefaultSimex({"url": r".*?", "mycode": r"[A-Z][0-9][0-9][0-9]"})
+
+Currently there are five in the list of pre-defined regexes:
+
+* URL
+* Email
+* Integer
+* Number
+* Anything
+
+Pull requests with commonly required non-controversial regexes are welcome.
+
+
+Using {{ and }} creates conflicts for me! Why not [[[ and ]]]?
+--------------------------------------------------------------
+
+{{ and }} have a special meaning in some languages which you may want to use
+with simex - e.g. jinja2.
+
+In order to prevent confusion in such circumstances, you can define your
+own delimeters:
+
+  >>> from simex import Simex
+  >>> simex = Simex(open_delimeter="[[[", close_delimeter="]]]")
+  >>> simex.compile("""<a href="[[[ url ">[[[ anything ]]]</a>""")
+  >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None

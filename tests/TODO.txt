@@ -1,0 +1,26 @@
+* Make callable object
+* Allow changeable variable declaration ({{ or }}).
+* allow regexes to be included.
+* strict mode?
+
+
+Library Regexes To Include
+
+slug
+hex value
+email
+url
+domain
+date
+ip address
+html tag
+credit card number
+[amex|visa|etc]
+whitespace
+whole line
+floating point number
+integer
+decimal number
+zip code
+SSN
+

@@ -5,22 +5,52 @@
   preconditions:
     python_version: {{ python_version }}
     files:
-      example_code.py: |
+      example_code1.py: |
         {% raw %}
-        from simex import simex
+        from simex import Simex, DefaultSimex
+        simex = Simex({"url": r".*?", "anything": r".*?"})
+        regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+        assert regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+        {% endraw %}
 
-        LINK_EXPRESSION = """<a href="{{ url }}">{{ anything }}</a>"""
+      example_code2.py: |
+        {% raw %}
+        from simex import Simex, DefaultSimex
+        simex = DefaultSimex()
+        regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+        assert regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
 
-        exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)", "anything": r".*?"})
-        assert exp.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+        regex = simex.compile("""<a href="mailto:{{ email }}">{{ anything }}</a>""")
+        assert regex.match("""<a href="mailto:billg@microsoft.com">Email bill</a>""") is not None
+        {% endraw %}
 
-        exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)"})
-        assert exp.match("""<a href="http://www.cnn.com">{{ anything }}</a>""") is not None
+      example_code3.py: |
+        {% raw %}
+        from simex import Simex, DefaultSimex
+        simex = DefaultSimex(open_delimeter="[[[", close_delimeter="]]]")
+        regex = simex.compile("""<a href="[[[ url ]]]">[[[ anything ]]]</a>""")
+        assert regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+        {% endraw %}
 
-        exp = simex(LINK_EXPRESSION, regexes={"url": r"(.*?)"})
-        assert exp.search("""Pre text <a href="http://x.com">{{ anything }}</a> post text""") is not None
+      example_code4.py: |
+        {% raw %}
+        from simex import Simex, KeyNotFound
+        simex = Simex()
+
+        try:
+            regex = simex.compile("""{{ nonexistentkey }}""")
+        except KeyNotFound:
+            keynotfound = True
+
+        assert keynotfound == True
         {% endraw %}
   scenario:
-    - Run: example_code.py
+    - Run: example_code1.py
+    - Exited successfully
+    - Run: example_code2.py
+    - Exited successfully
+    - Run: example_code3.py
+    - Exited successfully
+    - Run: example_code4.py
     - Exited successfully
 {% endfor %}
