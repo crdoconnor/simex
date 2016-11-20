@@ -9,14 +9,17 @@ This is useful for:
 * Improving the readability and maintainability of code that uses long regexes with a lot of escaped characters.
 * Allowing non-developers to read and understand simple regex-equivalents and potentially even write their own.
 
-Simex is *not* a full replacement for regular expressions and its use is not
-suitable everywhere a regex is used.
+Simex is *not* a full replacement for regular expressions and its use is not suitable everywhere a regex is used.
 
-See also: `Rule of least power (wikipedia) <https://en.wikipedia.org/wiki/Rule_of_least_power>`_
+It is ideally used where you usually want to compare two strings but you occasionally need to compare two
+strings with a pattern embedded within them.
+
+It is an embodiment of `the rule of least power <https://en.wikipedia.org/wiki/Rule_of_least_power>`_.
 
 To install::
 
   $ pip install simex
+
 
 Example
 -------
@@ -29,13 +32,6 @@ Example
   >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
   True
 
-
-How does it work?
------------------
-
-The regular expression simply escapes an entire simexpression, except for the
-components surrounded by {{ and }}, which it replaces with defined regular
-expressions - like "email" or "anything" or "number" defined in the dict.
 
 Do I have to define all of the sub-regular expressions myself?
 --------------------------------------------------------------
@@ -82,3 +78,11 @@ own delimeters:
   >>> simex = Simex(open_delimeter="[[[", close_delimeter="]]]")
   >>> simex.compile("""<a href="[[[ url ">[[[ anything ]]]</a>""")
   >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+
+
+How does it work?
+-----------------
+
+The regular expression simply escapes an entire simexpression, except for the
+components surrounded by {{ and }}, which it replaces with defined regular
+expressions - like "email" or "anything" or "number" defined in the dict.
