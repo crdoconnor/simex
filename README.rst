@@ -40,6 +40,8 @@ No. SimEx also contains a built in library of commonly used regular expressions.
 
 This will also work:
 
+.. code-block:: python
+
   >>> from simex import Simex
   >>> my_simex = DefaultSimex()
   >>> regex = my_simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
@@ -74,6 +76,8 @@ with simex - e.g. jinja2.
 In order to prevent confusion in such circumstances, you can define your
 own delimeters:
 
+.. code-block:: python
+
   >>> from simex import Simex
   >>> simex = Simex(open_delimeter="[[[", close_delimeter="]]]")
   >>> simex.compile("""<a href="[[[ url ">[[[ anything ]]]</a>""")
@@ -83,7 +87,9 @@ own delimeters:
 Matching exact strings
 ----------------------
 
-By default a simex will not match an exact string. i.e. it will produce::
+By default a simex will not match an exact string. i.e. it will produce:
+
+.. code-block:: python
 
   >>> from simex import Simex
   >>> simex = Simex({"url": r".*?", "anything": r".*?"})
@@ -93,7 +99,10 @@ By default a simex will not match an exact string. i.e. it will produce::
   >>> regex.match("""<a href="http://www.cnn.com">CNN</a> THERE IS MORE TEXT""") is not None
   True
 
-However, if you want, simexes can be used to do exact matching. For example::
+However, if you want, simexes can be used to do exact matching. For example:
+
+
+.. code-block:: python
 
   >>> from simex import Simex
   >>> simex = Simex({"url": r".*?", "anything": r".*?"}, exact=True)
