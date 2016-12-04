@@ -11,13 +11,14 @@ class Simex(object):
     """
     DEFAULTS = {}
 
-    def __init__(self, regexes=None, open_delimeter="{{", close_delimeter="}}"):
+    def __init__(self, regexes=None, open_delimeter="{{", close_delimeter="}}", exact=False):
         """
         Initialize simex.
 
         regexes: A dict of keys and values. Will override self.DEFAULTS if specified.
         open_delimeter: what specifies the beginning of a key (default '}}')
         close_delimeter: what specifies the end of a key (default '}}')
+        exact: whether to match an exact string (i.e. start with ^ and end with $).
         """
         if regexes is None:
             self._regexes = self.DEFAULTS
@@ -25,6 +26,7 @@ class Simex(object):
             self._regexes = dict([r for r in self.DEFAULTS.items()] + [r for r in regexes.items()])
         self._open_delimeter = open_delimeter
         self._close_delimeter = close_delimeter
+        self._exact = exact
 
     def compile(self, code):
         """
@@ -47,6 +49,8 @@ class Simex(object):
                 else:
                     raise KeyNotFound("'{0}' not found in keys")
             is_plain_text = not is_plain_text
+        if self._exact:
+            compiled_regex = "^" + compiled_regex + "$"
         return regex.compile(compiled_regex)
 
     def delimiter_regex(self):

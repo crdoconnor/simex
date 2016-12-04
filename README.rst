@@ -28,8 +28,8 @@ Example
 
   >>> from simex import Simex
   >>> simex = Simex({"url": r".*?", "anything": r".*?"})
-  >>> simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
-  >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+  >>> regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
   True
 
 
@@ -78,6 +78,32 @@ own delimeters:
   >>> simex = Simex(open_delimeter="[[[", close_delimeter="]]]")
   >>> simex.compile("""<a href="[[[ url ">[[[ anything ]]]</a>""")
   >>> simex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+
+
+Matching exact strings
+----------------------
+
+By default a simex will not match an exact string. i.e. it will produce::
+
+  >>> from simex import Simex
+  >>> simex = Simex({"url": r".*?", "anything": r".*?"})
+  >>> regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> regex
+  re.compile(r'\<a\ href\=\".*?\"\>.*?\<\/a\>', re.UNICODE)
+  >>> regex.match("""<a href="http://www.cnn.com">CNN</a> THERE IS MORE TEXT""") is not None
+  True
+
+However, if you want, simexes can be used to do exact matching. For example::
+
+  >>> from simex import Simex
+  >>> simex = Simex({"url": r".*?", "anything": r".*?"}, exact=True)
+  >>> regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> regex
+  re.compile(r'^\<a\ href\=\".*?\"\>.*?\<\/a\>$', re.UNICODE)
+  >>> regex.match("""<a href="http://www.cnn.com">CNN</a>""") is not None
+  True
+  >>> regex.match("""<a href="http://www.cnn.com">CNN</a> THERE IS MORE TEXT""") is not None
+  False
 
 
 How does it work?

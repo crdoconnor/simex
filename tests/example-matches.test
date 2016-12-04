@@ -44,6 +44,13 @@
 
         assert keynotfound == True
         {% endraw %}
+      example_code5.py: |
+        {% raw %}
+        from simex import Simex
+        simex = Simex({"url": r".*?", "anything": r".*?"}, exact=True)
+        regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+        assert regex.match("""<a href="http://www.cnn.com">CNN</a> EXTENDED STRING""") is None
+        {% endraw %}
   scenario:
     - Run: example_code1.py
     - Exited successfully
@@ -52,5 +59,7 @@
     - Run: example_code3.py
     - Exited successfully
     - Run: example_code4.py
+    - Exited successfully
+    - Run: example_code5.py
     - Exited successfully
 {% endfor %}
