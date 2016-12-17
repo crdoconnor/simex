@@ -101,7 +101,6 @@ By default a simex will not match an exact string. i.e. it will produce:
 
 However, if you want, simexes can be used to do exact matching. For example:
 
-
 .. code-block:: python
 
   >>> from simex import Simex
@@ -113,6 +112,21 @@ However, if you want, simexes can be used to do exact matching. For example:
   True
   >>> regex.match("""<a href="http://www.cnn.com">CNN</a> THERE IS MORE TEXT""") is not None
   False
+
+Matching can also treat whitespace (tabs, spaces and newlines) as interchangeable. For example:
+
+.. code-block:: python
+
+  >>> from simex import Simex
+  >>> simex = Simex({"url": r".*?", "anything": r".*?"}, flexible_whitespace=True)
+  >>> regex = simex.compile("""<a href="{{ url }}">{{ anything }}</a>""")
+  >>> regex
+  re.compile(r'\<a\\s+href\=\".*?\"\>.*?\<\/a\>', re.UNICODE)
+  >>> regex.match("""<a   href="http://www.cnn.com">CNN</a>""") is not None
+  True
+
+.. code-block:: python
+
 
 
 How does it work?
