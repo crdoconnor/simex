@@ -1,8 +1,23 @@
-import re as regex
+#import re as regex
+from re import escape, compile, sub
 
 
 class KeyNotFound(Exception):
     pass
+
+
+def simex_escape(text, flexible_whitespace):
+    assert type(text) is str
+    assert type(flexible_whitespace) is bool
+    escaped = ""
+    for character in text:
+        if character == " ":
+            escaped += " "
+        else:
+            escaped += escape(character)
+    if flexible_whitespace:
+        escaped = sub("\s+", "\s+", escaped)
+    return escaped
 
 
 class Simex(object):
@@ -47,7 +62,7 @@ class Simex(object):
         compiled_regex = r""
         for chunk in self.delimiter_regex().split(code):
             if is_plain_text:
-                compiled_regex = compiled_regex + regex.escape(chunk)
+                compiled_regex = compiled_regex + simex_escape(chunk, flexible_whitespace=self._flexible_whitespace)
             else:
                 stripped_chunk = chunk.strip()
                 if stripped_chunk in self._regexes.keys():
@@ -59,14 +74,16 @@ class Simex(object):
                     raise KeyNotFound("'{0}' not found in keys")
             is_plain_text = not is_plain_text
         if self._exact:
-            compiled_regex = "^" + compiled_regex + "$"
-        if self._flexible_whitespace:
-            compiled_regex = regex.sub("\s+", " ", compiled_regex).replace(" ", "\s+")
-        return regex.compile(compiled_regex)
+            compiled_regex = r"^" + compiled_regex + r"$"
+        #print(compiled_regex)
+        #if self._flexible_whitespace:
+            #compiled_regex = sub(r"\s+", r"\s+", compiled_regex)
+        print(compiled_regex)
+        return compile(compiled_regex)
 
     def delimiter_regex(self):
-        return regex.compile(
-            regex.escape(self._open_delimeter) + r'(.*?)' + regex.escape(self._close_delimeter)
+        return compile(
+            escape(self._open_delimeter) + r'(.*?)' + escape(self._close_delimeter)
         )
 
 

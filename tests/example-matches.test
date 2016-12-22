@@ -56,7 +56,7 @@
         from simex import Simex
         simex = Simex({"url": r".*?", "anything": r".*?"}, flexible_whitespace=True)
         regex = simex.compile("""<a  href="{{ url }}">{{ anything }}</a>""")
-        assert regex.match("""<a href="http://www.cnn.com">CNN</a> EXTENDED STRING""") is None
+        assert regex.match("""<a  href="http://www.cnn.com">CNN</a>""") is not None
         {% endraw %}
   scenario:
     - Run: example_code1.py
