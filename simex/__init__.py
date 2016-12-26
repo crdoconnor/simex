@@ -75,10 +75,6 @@ class Simex(object):
             is_plain_text = not is_plain_text
         if self._exact:
             compiled_regex = r"^" + compiled_regex + r"$"
-        #print(compiled_regex)
-        #if self._flexible_whitespace:
-            #compiled_regex = sub(r"\s+", r"\s+", compiled_regex)
-        print(compiled_regex)
         return compile(compiled_regex)
 
     def delimiter_regex(self):
